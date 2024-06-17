@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MRV System</title>
+</head>
+<body>
+<h1>Método de Reflexão e Validação (MRV)</h1>
+<form id="reflectionForm">
+    <label for="description">Descrição:</label><br>
+    <textarea id="description" name="description"></textarea><br>
+    
+    <label for="context">Contexto:</label><br>
+    <textarea id="context" name="context"></textarea><br>
+
+    <label for="internal_source">Fonte Interna:</label><br>
+    <textarea id="internal_source" name="internal_source"></textarea><br>
+
+    <label for="external_source">Fonte Externa:</label><br>
+    <textarea id="external_source" name="external_source"></textarea><br>
+
+    <label for="evidence_for">Evidências a Favor:</label><br>
+    <textarea id="evidence_for" name="evidence_for"></textarea><br>
+
+    <label for="evidence_against">Evidências Contra:</label><br>
+    <textarea id="evidence_against" name="evidence_against"></textarea><br>
+
+    <label for="consistency">Consistência:</label><br>
+    <textarea id="consistency" name="consistency"></textarea><br>
+
+    <label for="inconsistencies">Inconsistências:</label><br>
+    <textarea id="inconsistencies" name="inconsistencies"></textarea><br>
+
+    <label for="self_assessment">Autoavaliação:</label><br>
+    <textarea id="self_assessment" name="self_assessment"></textarea><br>
+
+    <label for="personal_goals">Objetivos Pessoais:</label><br>
+    <textarea id="personal_goals" name="personal_goals"></textarea><br>
+
+    <label for="action">Ação:</label><br>
+    <textarea id="action" name="action"></textarea><br>
+
+    <label for="adjustment">Ajuste:</label><br>
+    <textarea id="adjustment" name="adjustment"></textarea><br>
+
+    <button type="submit">Salvar Reflexão</button>
+</form>
+
+<h2>Relatos Salvos</h2>
+<div id="reflectionsList"></div>
+
+<script>
+    document.getElementById('reflectionForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const data = {
+        description: document.getElementById('description').value,
+        context: document.getElementById('context').value,
+        internal_source: document.getElementById('internal_source').value,
+        external_source: document.getElementById('external_source').value,
+        evidence_for: document.getElementById('evidence_for').value,
+        evidence_against: document.getElementById('evidence_against').value,
+        consistency: document.getElementById('consistency').value,
+        inconsistencies: document.getElementById('inconsistencies').value,
+        self_assessment: document.getElementById('self_assessment').value,
+        personal_goals: document.getElementById('personal_goals').value,
+        action: document.getElementById('action').value,
+        adjustment: document.getElementById('adjustment').value
+    };
+
+    console.log('Enviando dados:', data);
+
+    fetch('/add-reflection', {
+        method: 'POST',
+        headers: {
+        'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+    }).then(response => response.json())
+        .then(data => {
+        console.log('Resposta recebida:', data);
+        if (data.id) {
+            alert('Reflexão salva com sucesso!');
+            loadReflections();
+        } else {
+            alert('Erro ao salvar reflexão.');
+        }
+        })
+        .catch(error => {
+        console.error('Erro ao salvar reflexão:', error);
+        });
+    });
+
+    function loadReflections() {
+    fetch('/reflections')
+        .then(response => response.json())
+        .then(data => {
+        const reflectionsList = document.getElementById('reflectionsList');
+        reflectionsList.innerHTML = '';
+        data.forEach(reflection => {
+            const div = document.createElement('div');
+            div.innerHTML = `
+            <h3>Reflexão #${reflection.id}</h3>
+            <p><strong>Descrição:</strong> ${reflection.description}</p>
+            <p><strong>Contexto:</strong> ${reflection.context}</p>
+            <p><strong>Fonte Interna:</strong> ${reflection.internal_source}</p>
+            <p><strong>Fonte Externa:</strong> ${reflection.external_source}</p>
+            <p><strong>Evidências a Favor:</strong> ${reflection.evidence_for}</p>
+            <p><strong>Evidências Contra:</strong> ${reflection.evidence_against}</p>
+            <p><strong>Consistência:</strong> ${reflection.consistency}</p>
+            <p><strong>Inconsistências:</strong> ${reflection.inconsistencies}</p>
+            <p><strong>Autoavaliação:</strong> ${reflection.self_assessment}</p>
+            <p><strong>Objetivos Pessoais:</strong> ${reflection.personal_goals}</p>
+            <p><strong>Ação:</strong> ${reflection.action}</p>
+            <p><strong>Ajuste:</strong> ${reflection.adjustment}</p>
+            `;
+            reflectionsList.appendChild(div);
+        });
+        })
+        .catch(error => {
+        console.error('Erro ao carregar reflexões:', error);
+        });
+    }
+
+    loadReflections();
+</script>
+</body>
+</html>
